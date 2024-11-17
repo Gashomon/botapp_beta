@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">bot_app</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="dest1txt">Sender Destination</string>
+    <string name="dest2txt">Receiver Destination</string>
+    <string name="receivertxt">Receiver</string>
+    <string name="sendertxt">Sender</string>
+    <string name="typetxt">Type</string>
+    <string name="buttontxt">Button</string>
+    <string name="receiverfieldtxt">enter receiver</string>
+    <string name="senderfieldtxt">enter sender</string>
+
+    <string-array name="dests_list">
+        <item>Home</item>
+        <item>CpE</item>
+        <item>EE</item>
+        <item>ME</item>
+        <item>ECE</item>
+        <item>CE</item>
+        <item>Dean</item>
+    </string-array>
+
+    <string-array name="types_list">
+        <item>Deliver</item>
+        <item>Fetch</item>
+        <item>Retrieve</item>
+    </string-array>
+
+</resources>
