@@ -1,8 +1,8 @@
 package com.example.bot_app.ui.home
 
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,20 +12,21 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import androidx.navigation.fragment.findNavController
+import com.example.bot_app.ClientConn
 import com.example.bot_app.R
 import com.example.bot_app.databinding.FragmentHomeBinding
-import kotlinx.coroutines.launch
-import java.io.BufferedInputStream
-import java.io.DataInputStream
-import java.io.IOException
-import java.io.PrintWriter
+import com.example.bot_app.databinding.FragmentResponseBinding
+import java.net.InetAddress
 import java.net.Socket
+import java.security.KeyStore.TrustedCertificateEntry
 
 
 class HomeFragment : Fragment() {
+    var hostIP: InetAddress = InetAddress.getByName("192.168.137.231")
+//    var connection: Socket = Socket(hostIP, 9999)
+//    val con: ClientConn = ClientConn(hostIP)
 
     private var _binding: FragmentHomeBinding? = null
 
@@ -38,6 +39,7 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        socketConnect()
         val homeViewModel =
             ViewModelProvider(this)[HomeViewModel::class.java]
 
@@ -45,10 +47,11 @@ class HomeFragment : Fragment() {
         val root: View = binding.root
 
         val senderfield: EditText = binding.sender
-        val receiverfield: TextView = binding.receiver
+        val receiverfield: EditText = binding.receiver
         val typefield: Spinner = binding.type
         val dest1field: Spinner = binding.dest1
         val dest2field: Spinner = binding.dest2
+        val txv: TextView = binding.typetxt
         val sendbtn: Button = binding.send
 
         // Create an ArrayAdapter using the string array and a default spinner layout.
@@ -89,7 +92,31 @@ class HomeFragment : Fragment() {
 
         sendbtn.setOnClickListener(View.OnClickListener {
             // Code here executes on main thread after user presses button
-            sendData(senderfield)
+            val bund: Bundle = Bundle()
+            val mainText: String
+            val smolText: String
+
+            var success = false
+            val password = makepass()
+            try {
+//                sendData(senderfield, receiverfield, typefield, dest1field, dest2field, password, txv, con)
+                success = true
+            }
+            catch (e:Exception) {
+                success = false
+            }
+
+            if(success){
+                mainText = "SUCCESSFUL REQUEST.\n Robot OTW"
+                smolText = "Password : $password"
+            }
+            else{
+                mainText = "UNSUCCESSFUL REQUEST"
+                smolText = "Try Again Later"
+            }
+            bund.putString("MainText", mainText)
+            bund.putString("SubText", smolText)
+            findNavController().navigate(R.id.action_navigation_home_to_response_fragment, bund)
         })
         return root
     }
@@ -99,64 +126,48 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 
-    private fun sendData(pop: EditText){
-//        val client = Socket("127.0.0.1", 9999)
-//        client.outputStream.write("Hello from the client!".toByteArray())
-//        client.close()
-        pop.setText("hello")
-        val bgt = BackGroundTask()
-        bgt.viewModelScope
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val policy = ThreadPolicy.Builder()
+            .permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+//        con.run()
+
+    }
+    private fun sendData(senderfield: EditText,
+                         receiverfield: EditText,
+                         typefield: Spinner,
+                         dest1field: Spinner,
+                         dest2field: Spinner,
+                         password: String,
+                         txv: TextView,
+                         connect: ClientConn){
+        val data = buildString {
+            append(senderfield.getText().toString())
+            append(",")
+            append(receiverfield.getText().toString())
+            append(",")
+            append(password)
+            append(",")
+            append(typefield.selectedItem.toString())
+            append(",")
+            append(dest1field.selectedItem.toString())
+            append(",")
+            append(dest2field.selectedItem.toString())
+        }
+        txv.text = data
+        connect.write(data.toByteArray())
     }
 
-    class BackGroundTask: ViewModel ()
-    {
-        val h = Handler()
-        private var s: Socket? = null
-        private var writer: PrintWriter? = null
-        private var reader: DataInputStream? = null
-        private var i: Int = 0
-        private var send: String? = null
-        private var get: String? = null
-        init {
-            viewModelScope.launch {
-
-                doInBackground()
-            }
-        }
-        private fun doInBackground(vararg voids: String?): Void? {
-            Log.i("i", "hello");
-            try {
-                if (s == null) {
-                    //change it to your IP
-                    s = Socket("192.168.137.94", 6000)
-                    writer = PrintWriter(s!!.getOutputStream())
-                    reader = DataInputStream(
-                        BufferedInputStream(s!!.getInputStream())
-                    )
-                    Log.i("i", "CONNECTED")
-                }
-                if ((i % 5) == 0) {
-                    send = "me:fifth"
-                    get = "me:fifth"
-                } else {
-                    send = "me:" + i.toString()
-                    get = "me:" + i.toString()
-                }
-                if (i > 10) {
-                    s!!.close()
-                }
-                writer?.write(send)
-                writer?.flush()
-                //                writer.close();
-                i = i + 1
-                h.post {
-                    //                        Log.i("i", "lol");
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            return null
-        }
+    private fun makepass(): String{
+        var pass = ""
+        for(i in 1..4) pass += (0..9).random().toString()
+        return pass
     }
 
+    private fun socketConnect() {
+
+//            findNavController().navigate(R.id.action_navigation_home_to_response_fragment)
+
+    }
 }

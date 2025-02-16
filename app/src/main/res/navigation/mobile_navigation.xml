@@ -3,13 +3,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/first_fragment">
+
+    <fragment
+        android:id="@+id/first_fragment"
+        android:name="com.example.bot_app.ui.first.FirstFragment"
+        android:label="@string/title_first"
+        tools:layout="@layout/fragment_first"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+        <action
+            android:id="@+id/action_first_fragment_to_navigation_home"
+            app:destination="@id/navigation_home" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.example.bot_app.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_navigation_home_to_response_fragment"
+            app:destination="@id/response_fragment" >
+            <argument
+                android:name="MainText"
+                android:defaultValue="pop" />
+            <argument
+                android:name="SubText"
+                android:defaultValue="mom" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_dashboard"
@@ -22,4 +45,15 @@
         android:name="com.example.bot_app.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/response_fragment"
+        android:name="com.example.bot_app.ui.response.ResponseFragment"
+        android:label="Response"
+        tools:layout="@layout/fragment_response">
+        <action
+            android:id="@+id/action_response_fragment_to_first_fragment"
+            app:destination="@id/first_fragment" />
+    </fragment>
+
 </navigation>

@@ -137,11 +137,4 @@
         app:layout_constraintBottom_toTopOf="@+id/typetxt"
         app:layout_constraintStart_toStartOf="parent" />
 
-
-
-
-
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
